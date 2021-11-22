@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import { Input } from '@material-ui/core';
+import { Button, Divider } from '@material-ui/core';
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
-import { useHistory } from 'react-router-dom'
-
-import ButtonForm from '../components/ButtonForm'
+import { Link, useParams } from 'react-router-dom'
+import api from '../services/api'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -11,24 +10,26 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
+        alignItems: 'center',
         color: '#FFF',
-        height: '70vh',
+        height: '60vh',
         width: '60%',
         padding: '0 5%',
         borderRadius: 5,
         '& > *': {
             margin: theme.spacing(2),
         },
-
         '& .MuiInput-underline:after': {
             borderBottomColor: '#FFF',
         },
         '& .MuiInput-underline': {
             fontFamily: 'Poppins',
             color: '#FFF',
-            fontSize: 20
+            fontSize: 20,
+            textDecoration: 'none'
         },
 
+        
     },
     contentButtons: {
         display: 'flex',
@@ -41,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
         height: 50,
         color: '#FFF',
         fontFamily: 'Poppins',
+        textDecoration: 'none'
     },
     HeaderQuiz: {
         display: 'flex',
@@ -49,38 +51,40 @@ const useStyles = makeStyles((theme) => ({
     },
     TitleQuestion: {
         fontSize: 20
-    },
-    forms: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        height: '70%'
     }
-
 }));
 
-
-export default function HomeQuestion() {
+function Confirm({amountQuest}) {
     const classes = useStyles();
-    const [amountQuest, setAmountQuest] = useState(0)
-    let history = useHistory();
+    const [dataQuiz, setDataQuiz] = useState()
 
-
-    async function handleNextStep() {
-        console.log(amountQuest)
-        history.push("/Confirm");
+    async function loadQuestions() {
+        await api.get(`?amount=${amountQuest}&category=9&type=multiple`)
+            .then(response => {
+                setDataQuiz(response.data)
+            })
     }
 
+    console.log(amountQuest)
     return (
         <ThemeProvider>
             <div className={classes.root}>
-                <form className={classes.forms} noValidate autoComplete="off">
-                    <h1>Select how many questions do you want to answer?</h1>
-                    <Input required type="number" id="amountQuest" value={amountQuest} onChange={(event) => setAmountQuest(event.target.value)} />
-                    <ButtonForm labelButton={'Avançar'} onClick={() => handleNextStep(amountQuest)} />
-                </form>
+               
+                    <p>You chose <b>{amountQuest}</b> questions. <br/> Let's start?</p>
+                    <div >
+                        
+                        <Link to="/Quiz">
+                            <Button variant="outlined" color="primary">Start</Button>
+                        </Link>
+                        <Link to="/">
+                            <Button variant="outlined" color="secondary" >Cancel</Button>
+                        </Link>
+                        
+                    </div>
             </div>
         </ThemeProvider>
 
     )
 }
+
+export default Confirm
